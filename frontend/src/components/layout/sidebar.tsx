@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/app'
 import {
   Search, Upload, LayoutDashboard, Layers,
-  Settings, ListOrdered, Briefcase,
+  Settings, ListOrdered, Briefcase, FileText,
 } from 'lucide-react'
 
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { to: '/upload', icon: Upload, label: '上传' },
   { to: '/cards', icon: Layers, label: '卡片' },
   { to: '/workspace', icon: Briefcase, label: '售前工作台' },
+  { to: '/templates', icon: FileText, label: '模板' },
   { to: '/indexes', icon: ListOrdered, label: '索引' },
   { to: '/settings', icon: Settings, label: '配置' },
 ]

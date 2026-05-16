@@ -187,12 +187,12 @@ export default function CardsPage() {
                 </div>
               </div>
 
-              {selectedCard.intent_tags && (
+              {selectedCard?.intent_tags?.length > 0 && (
                 <div>
                   <label className="text-meta text-muted-foreground">标签</label>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {(Array.isArray(selectedCard.intent_tags) ? selectedCard.intent_tags : selectedCard.intent_tags.split(',')).filter(Boolean).map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-meta">{String(tag).trim()}</Badge>
+                    {selectedCard.intent_tags.filter(Boolean).map((tag) => (
+                      <Badge key={tag} variant="outline" className="text-meta">{tag.trim()}</Badge>
                     ))}
                   </div>
                 </div>

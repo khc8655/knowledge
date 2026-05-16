@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { api, type SystemConfig } from '@/lib/api'
-import { Settings, Save, Loader2, CheckCircle2 } from 'lucide-react'
+import { Save, Loader2, CheckCircle2 } from 'lucide-react'
 
 export default function SettingsPage() {
   const [config, setConfig] = useState<SystemConfig>({})
