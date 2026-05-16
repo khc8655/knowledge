@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: #faf8ff;
+  --color-foreground: #191b23;
+  --color-card: #ffffff;
+  --color-card-foreground: #191b23;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #191b23;
+  --color-primary: #0052cc;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f3f3fd;
+  --color-secondary-foreground: #191b23;
+  --color-muted: #f3f3fd;
+  --color-muted-foreground: #434654;
+  --color-accent: #f3f3fd;
+  --color-accent-foreground: #191b23;
+  --color-destructive: #FF5630;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #c3c6d6;
+  --color-input: #c3c6d6;
+  --color-ring: #0052cc;
+  --color-success: #36B37E;
+  --color-warning: #FFAB00;
+  --color-processing: #0052CC;
+  --color-surface: #ffffff;
+  --color-surface-dim: #d9d9e4;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f3fd;
+  --color-surface-container: #ededf8;
+  --color-surface-container-high: #e7e7f2;
+  --color-surface-container-highest: #e1e2ec;
+  --color-hit-high: #36B37E;
+  --color-hit-medium: #0052CC;
+  --color-hit-low: #FFAB00;
+  --color-report-purple: #6554C0;
+  --color-report-teal: #00B8D9;
+  --color-primary-50: #e6f0ff;
+  --color-primary-100: #b3d1ff;
+  --color-primary-200: #80b3ff;
+  --color-primary-300: #4d94ff;
+  --color-primary-400: #1a75ff;
+  --color-primary-500: #0052cc;
+  --color-primary-600: #003d9b;
+  --color-primary-700: #002d73;
+  --color-primary-800: #001e4d;
+  --color-primary-900: #000f26;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Manrope', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.25rem;
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+  }
+}
