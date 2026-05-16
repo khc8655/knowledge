@@ -75,6 +75,21 @@ def register_default_handlers(executor, data_dir: str):
     executor.register("pipeline_txt", lambda j: handle_pipeline(j, TxtPipeline))
     executor.register("pipeline_ppt", lambda j: handle_pipeline(j, PptPipeline))
 
+    def handle_pipeline_report(job):
+        from pipeline.report import ReportPipeline
+        import json, os
+        pipeline = ReportPipeline()
+        payload = json.loads(job.get('payload', '{}') or '{}')
+        file_path = payload.get('file_path')
+        doc_file = payload.get('doc_file', os.path.basename(file_path) if file_path else 'unknown')
+        if not file_path:
+            raise ValueError("pipeline_report requires file_path in payload")
+        cards = pipeline.parse(file_path, doc_file=doc_file)
+        store.save_batch(cards)
+        return {'cards_generated': len(cards)}
+
+    executor.register("pipeline_report", handle_pipeline_report)
+
     def handle_annotate(job):
         from services.annotate_service import annotate_batch
         annotate_batch(store)

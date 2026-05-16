@@ -37,6 +37,16 @@ def check_health() -> dict:
     except Exception:
         pass
 
+    try:
+        conn = get_db()
+        evidence_count = conn.execute("SELECT COUNT(*) as c FROM evidence_packs WHERE archived_at IS NULL").fetchone()['c']
+        report_count = conn.execute("SELECT COUNT(*) as c FROM evidence_packs WHERE evidence_type='report' AND archived_at IS NULL").fetchone()['c']
+        conn.close()
+        checks['evidence_count'] = evidence_count
+        checks['report_evidence_count'] = report_count
+    except Exception:
+        pass
+
     elapsed = int((time.time() - start) * 1000)
 
     return {
