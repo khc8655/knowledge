@@ -5,6 +5,7 @@ import DashboardPage from '@/pages/dashboard'
 import UploadPage from '@/pages/upload'
 import CardsPage from '@/pages/cards'
 import IndexesPage from '@/pages/indexes'
+import SettingsPage from '@/pages/settings'
 
 function Placeholder({ title }: { title: string }) {
   return (
@@ -25,7 +26,7 @@ export default function App() {
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/cards" element={<CardsPage />} />
           <Route path="/indexes" element={<IndexesPage />} />
-          <Route path="/settings" element={<Placeholder title="系统配置" />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/workspace" element={<Placeholder title="售前工作台" />} />
           <Route path="/templates" element={<Placeholder title="模板管理" />} />
         </Route>
