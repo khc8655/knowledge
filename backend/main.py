@@ -39,7 +39,8 @@ app.add_middleware(
 
 @app.get("/api/v1/health")
 async def health():
-    return {"status": "healthy", "version": "7.5"}
+    from services.health import check_health
+    return check_health()
 
 
 # Import and register routers
