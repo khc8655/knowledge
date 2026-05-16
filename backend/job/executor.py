@@ -36,3 +36,54 @@ class JobExecutor:
             self.scheduler.fail_job(job_id, error_msg)
 
         return True
+
+
+def register_default_handlers(executor, data_dir: str):
+    """Register all default job handlers."""
+    from pipeline.word import WordPipeline
+    from pipeline.markdown import MarkdownPipeline
+    from pipeline.txt import TxtPipeline
+    from pipeline.ppt import PptPipeline
+    from card.store import CardStore
+    from db.models import get_db
+
+    store = CardStore(data_dir=data_dir)
+
+    def handle_pipeline(job, pipeline_cls):
+        conn = get_db()
+        try:
+            row = conn.execute(
+                "SELECT * FROM uploaded_files WHERE id = ?", (job["target_id"],)
+            ).fetchone()
+            if not row:
+                raise ValueError(f"File not found: {job['target_id']}")
+
+            pipeline = pipeline_cls(data_dir=data_dir, doc_index=row["id"])
+            cards = pipeline.parse(row["storage_path"])
+            store.save_batch(cards)
+
+            conn.execute(
+                "UPDATE uploaded_files SET cards_count=?, pipeline_status='done', processed_at=datetime('now') WHERE id=?",
+                (len(cards), row["id"])
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+    executor.register("pipeline_word", lambda j: handle_pipeline(j, WordPipeline))
+    executor.register("pipeline_md", lambda j: handle_pipeline(j, MarkdownPipeline))
+    executor.register("pipeline_txt", lambda j: handle_pipeline(j, TxtPipeline))
+    executor.register("pipeline_ppt", lambda j: handle_pipeline(j, PptPipeline))
+
+    def handle_annotate(job):
+        from services.annotate_service import annotate_batch
+        annotate_batch(store)
+
+    executor.register("annotate", handle_annotate)
+
+    def handle_index(job):
+        pass  # Placeholder - index building happens in wiki_test
+
+    executor.register("index_bm25", handle_index)
+    executor.register("index_vector", handle_index)
+    executor.register("index_fts5", handle_index)
