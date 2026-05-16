@@ -129,6 +129,41 @@ export interface SystemConfig {
   cache_max_entries?: number
 }
 
+export interface Project {
+  id: string
+  customer_name: string
+  industry: string
+  stage: string
+  deployment_type: string
+  description: string
+  owner: string
+  created_at: string
+  updated_at: string
+  archived_at: string | null
+}
+
+export interface TenderRequirement {
+  id: string
+  requirement_type: string
+  raw_text: string
+  target_models: string[]
+  required_capabilities: string[]
+  required_evidence: string[]
+}
+
+export interface Template {
+  id: string
+  template_type: string
+  name: string
+  industry: string
+  deployment_type: string
+  file_path: string
+  schema_json: string
+  enabled: number
+  created_at: string
+  updated_at: string
+}
+
 // API functions
 export const api = {
   health: () => request<HealthResponse>('/health'),
@@ -224,4 +259,78 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
+
+  // Projects
+  listProjects: (params?: { page?: number; page_size?: number; stage?: string }) => {
+    const qs = new URLSearchParams()
+    if (params?.page) qs.set('page', String(params.page))
+    if (params?.page_size) qs.set('page_size', String(params.page_size))
+    if (params?.stage) qs.set('stage', params.stage)
+    return request<{ total: number; page: number; page_size: number; items: Project[] }>(`/projects?${qs}`)
+  },
+
+  getProject: (projectId: string) => request<Project>(`/projects/${projectId}`),
+
+  createProject: (data: { customer_name: string; industry?: string; stage?: string; deployment_type?: string; description?: string }) =>
+    request<Project>('/projects', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateProject: (projectId: string, data: Partial<Project>) =>
+    request<Project>(`/projects/${projectId}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  archiveProject: (projectId: string) =>
+    request<{ status: string; id: string }>(`/projects/${projectId}/archive`, { method: 'POST' }),
+
+  // Proposals
+  generateProposal: (data: { project_id: string; title: string; customer_context?: string; industry?: string; deployment_type?: string; evidences?: unknown[] }) =>
+    request<Record<string, unknown>>('/proposals/generate', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Tender
+  analyzeTender: (data: { tender_text: string; project_id?: string }) =>
+    request<{ total: number; requirements: TenderRequirement[] }>('/tender/analyze', { method: 'POST', body: JSON.stringify(data) }),
+
+  matchTender: (data: { project_id?: string; requirement_ids?: string[]; candidate_models?: string[] }) =>
+    request<{ total: number; results: unknown[] }>('/tender/match', { method: 'POST', body: JSON.stringify(data) }),
+
+  // BOM
+  generateBom: (data: { project_id: string; scenario?: string; room_count?: number; deployment_type?: string; required_models?: string[]; budget_limit?: number }) =>
+    request<Record<string, unknown>>('/bom/generate', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Reply
+  generateReply: (data: { customer_question: string; project_id?: string; keywords?: string[]; tone?: string; max_chars?: number }) =>
+    request<Record<string, unknown>>('/reply/generate', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Templates
+  listTemplates: (params?: { template_type?: string; industry?: string }) => {
+    const qs = new URLSearchParams()
+    if (params?.template_type) qs.set('template_type', params.template_type)
+    if (params?.industry) qs.set('industry', params.industry)
+    return request<Template[]>(`/templates?${qs}`)
+  },
+
+  createTemplate: (data: { template_type: string; name: string; industry?: string; deployment_type?: string; file_path: string; schema_json?: string; enabled?: number }) =>
+    request<Template>('/templates', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateTemplate: (templateId: string, data: Partial<Template>) =>
+    request<Template>(`/templates/${templateId}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  deleteTemplate: (templateId: string) =>
+    request<{ status: string; id: string }>(`/templates/${templateId}`, { method: 'DELETE' }),
+
+  // Outputs
+  reviewOutput: (outputId: string, action: string) =>
+    request<{ status: string; output_id: string }>(`/outputs/${outputId}/review`, { method: 'POST', body: JSON.stringify({ action }) }),
+
+  submitFeedback: (outputId: string, data: { feedback_type: string; target_path?: string; before_text?: string; after_text?: string; comment?: string }) =>
+    request<{ status: string; feedback_id: string }>(`/outputs/${outputId}/feedback`, { method: 'POST', body: JSON.stringify(data) }),
+
+  // Evidence
+  buildEvidence: (data: { card_ids: string[]; task_type: string; project_id?: string }) =>
+    request<{ evidence_pack_id: string; evidences: unknown[]; risk_summary: Record<string, unknown> }>('/evidence/build', { method: 'POST', body: JSON.stringify(data) }),
+
+  getProjectEvidence: (projectId: string) =>
+    request<unknown[]>(`/evidence/project/${projectId}`),
+
+  // Export
+  exportOutput: (outputId: string, format = 'markdown') =>
+    request<{ output_id: string; export_path: string; version: number; format: string }>(`/exports/${outputId}`, { method: 'POST', body: JSON.stringify({ format }) }),
 }
