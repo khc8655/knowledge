@@ -12,10 +12,8 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_db():
+def init_db(conn):
     """初始化数据库"""
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = get_db()
     cursor = conn.cursor()
     
     # 文档管理
@@ -121,6 +119,128 @@ def init_db():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_qf_query ON query_feedback(query_text)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_rm_active ON route_mappings(is_active)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_rc_hash ON route_cache(query_hash)")
-    
+
+    # v7.5: Evidence packs
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS evidence_packs (
+        id TEXT PRIMARY KEY,
+        project_id TEXT,
+        source_card_id TEXT NOT NULL,
+        source_type TEXT NOT NULL CHECK(source_type IN ('excel','word','markdown','txt','ppt','report')),
+        evidence_type TEXT NOT NULL,
+        claim TEXT NOT NULL,
+        body TEXT NOT NULL,
+        source TEXT NOT NULL,
+        confidence REAL NOT NULL DEFAULT 0,
+        freshness TEXT NOT NULL DEFAULT 'unknown' CHECK(freshness IN ('current','expired','history','unknown')),
+        risk_flags TEXT NOT NULL DEFAULT '[]',
+        created_by_task_id TEXT,
+        created_at TEXT NOT NULL,
+        archived_at TEXT
+    )
+    """)
+
+    # v7.5: Presales projects
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS presales_projects (
+        id TEXT PRIMARY KEY,
+        customer_name TEXT NOT NULL,
+        industry TEXT,
+        stage TEXT NOT NULL DEFAULT 'draft',
+        deployment_type TEXT,
+        description TEXT,
+        owner TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        archived_at TEXT
+    )
+    """)
+
+    # v7.5: Project requirements
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS project_requirements (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL,
+        requirement_type TEXT NOT NULL,
+        raw_text TEXT NOT NULL,
+        structured_json TEXT NOT NULL DEFAULT '{}',
+        source_file_id TEXT,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(project_id) REFERENCES presales_projects(id)
+    )
+    """)
+
+    # v7.5: Project outputs
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS project_outputs (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL,
+        output_type TEXT NOT NULL CHECK(output_type IN ('proposal','tender','bom','reply')),
+        title TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','evidence_checked','human_reviewed','exported','archived')),
+        content_md TEXT,
+        content_json TEXT NOT NULL DEFAULT '{}',
+        export_path TEXT,
+        version INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        reviewed_by TEXT,
+        reviewed_at TEXT,
+        FOREIGN KEY(project_id) REFERENCES presales_projects(id)
+    )
+    """)
+
+    # v7.5: Project evidence links
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS project_evidence_links (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL,
+        output_id TEXT NOT NULL,
+        evidence_id TEXT NOT NULL,
+        target_path TEXT NOT NULL,
+        link_role TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(project_id) REFERENCES presales_projects(id),
+        FOREIGN KEY(output_id) REFERENCES project_outputs(id),
+        FOREIGN KEY(evidence_id) REFERENCES evidence_packs(id)
+    )
+    """)
+
+    # v7.5: Project feedback
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS project_feedback (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL,
+        output_id TEXT,
+        feedback_type TEXT NOT NULL CHECK(feedback_type IN ('accept','edit','reject','comment')),
+        target_path TEXT,
+        before_text TEXT,
+        after_text TEXT,
+        comment TEXT,
+        created_by TEXT,
+        created_at TEXT NOT NULL
+    )
+    """)
+
+    # v7.5: Templates
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS templates (
+        id TEXT PRIMARY KEY,
+        template_type TEXT NOT NULL CHECK(template_type IN ('proposal','tender','reply','ppt')),
+        name TEXT NOT NULL,
+        industry TEXT,
+        deployment_type TEXT,
+        file_path TEXT NOT NULL,
+        schema_json TEXT NOT NULL DEFAULT '{}',
+        enabled INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+    )
+    """)
+
+    # v7.5: Indexes for new tables
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_project ON evidence_packs(project_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_card ON evidence_packs(source_card_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_type ON evidence_packs(evidence_type)")
+
     conn.commit()
-    conn.close()
