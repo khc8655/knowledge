@@ -3,6 +3,7 @@ import { AppShell } from '@/components/layout/app-shell'
 import SearchPage from '@/pages/search'
 import DashboardPage from '@/pages/dashboard'
 import UploadPage from '@/pages/upload'
+import CardsPage from '@/pages/cards'
 
 function Placeholder({ title }: { title: string }) {
   return (
@@ -21,7 +22,7 @@ export default function App() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/upload" element={<UploadPage />} />
-          <Route path="/cards" element={<Placeholder title="卡片管理" />} />
+          <Route path="/cards" element={<CardsPage />} />
           <Route path="/indexes" element={<Placeholder title="索引管理" />} />
           <Route path="/settings" element={<Placeholder title="系统配置" />} />
           <Route path="/workspace" element={<Placeholder title="售前工作台" />} />
