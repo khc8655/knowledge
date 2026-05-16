@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppShell } from '@/components/layout/app-shell'
 import SearchPage from '@/pages/search'
 import DashboardPage from '@/pages/dashboard'
+import UploadPage from '@/pages/upload'
 
 function Placeholder({ title }: { title: string }) {
   return (
@@ -19,7 +20,7 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/upload" element={<Placeholder title="上传文档" />} />
+          <Route path="/upload" element={<UploadPage />} />
           <Route path="/cards" element={<Placeholder title="卡片管理" />} />
           <Route path="/indexes" element={<Placeholder title="索引管理" />} />
           <Route path="/settings" element={<Placeholder title="系统配置" />} />
