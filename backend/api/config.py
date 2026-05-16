@@ -1,51 +1,50 @@
-"""
-配置 API
-"""
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional
+from config import AppConfig
 
-router = APIRouter(tags=["config"])
+router = APIRouter(prefix="/config", tags=["config"])
 
 class SystemConfig(BaseModel):
     llm_api_key: Optional[str] = None
     llm_base_url: Optional[str] = None
     llm_model: Optional[str] = None
     embedding_model: Optional[str] = None
-    max_section_chars: int = 1200
-    route_learning_enabled: bool = True
+    max_section_chars: Optional[int] = None
+    max_file_size_mb: Optional[int] = None
+    route_learning_enabled: Optional[bool] = None
+    cache_evict_days: Optional[int] = None
+    cache_max_entries: Optional[int] = None
 
-@router.get("/config")
+@router.get("")
 async def get_config():
-    """获取系统配置"""
-    import os
-    return {
-        "llm_model": os.getenv("LLM_MODEL", "Qwen/Qwen2.5-7B-Instruct"),
-        "embedding_model": os.getenv("EMBEDDING_MODEL", "BAAI/bge-large-zh-v1.5"),
-        "max_section_chars": 1200,
-        "route_learning_enabled": True
-    }
+    cfg = AppConfig()
+    data = cfg.to_dict()
+    if data.get('llm_api_key'):
+        data['llm_api_key'] = data['llm_api_key'][:8] + '...'
+    return data
 
-@router.put("/config")
+@router.put("")
 async def update_config(config: SystemConfig):
-    """更新系统配置"""
-    # TODO: 保存到数据库或环境变量
-    return {"status": "updated"}
+    cfg = AppConfig()
+    update_data = config.model_dump(exclude_none=True)
+    for key, value in update_data.items():
+        cfg.set(key, value)
+    cfg.save()
+    return {"status": "updated", "config": cfg.to_dict()}
 
-@router.get("/config/excel-card")
+@router.get("/excel-card")
 async def get_excel_card_config():
-    """获取 Excel 卡片配置"""
-    # TODO: 读取 excel_card_config.yaml
-    return {"config": {}}
+    cfg = AppConfig()
+    return cfg.get('excel_card_config', {})
 
-@router.put("/config/excel-card")
+@router.put("/excel-card")
 async def update_excel_card_config(config: dict):
-    """更新 Excel 卡片配置"""
-    # TODO: 保存到 yaml
+    cfg = AppConfig()
+    cfg.set('excel_card_config', config)
+    cfg.save()
     return {"status": "updated"}
 
-@router.post("/config/excel-card/profile/{file_id}")
+@router.post("/excel-card/profile/{file_id}")
 async def profile_excel(file_id: int):
-    """触发 Excel profiling"""
-    # TODO: 创建 profiling Job
     return {"status": "job_created", "file_id": file_id}
