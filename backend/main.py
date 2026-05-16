@@ -51,6 +51,8 @@ from api.config import router as config_router
 from api.index import router as index_router
 from api.feedback import router as feedback_router
 from api.job import router as job_router
+from api.evidence import router as evidence_router
+from api.tender import router as tender_router
 
 app.include_router(upload_router, prefix="/api/v1")
 app.include_router(query_router, prefix="/api/v1")
@@ -59,3 +61,5 @@ app.include_router(config_router, prefix="/api/v1")
 app.include_router(index_router, prefix="/api/v1")
 app.include_router(feedback_router, prefix="/api/v1")
 app.include_router(job_router, prefix="/api/v1")
+app.include_router(evidence_router, prefix="/api/v1")
+app.include_router(tender_router, prefix="/api/v1")
