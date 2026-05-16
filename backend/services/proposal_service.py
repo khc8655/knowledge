@@ -41,7 +41,7 @@ class ProposalService:
             }
             if coverage < 0.6:
                 chapter['status'] = '待补证据'
-                risk_summary.append(f"章节「{ch_title}」证据覆盖率不足 ({coverage:.0%})")
+                risk_summary.append(f"章节「{ch_title}」证据覆盖率不足 ({coverage:.0%}) — 待确认")
             else:
                 chapter['status'] = 'evidence_ok'
             content_json['chapters'].append(chapter)

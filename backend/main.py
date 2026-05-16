@@ -59,6 +59,7 @@ from api.reply import router as reply_router
 from api.bom import router as bom_router
 from api.output_review import router as review_router
 from api.proposal import router as proposal_router
+from api.export import router as export_router
 
 app.include_router(upload_router, prefix="/api/v1")
 app.include_router(query_router, prefix="/api/v1")
@@ -75,3 +76,4 @@ app.include_router(reply_router, prefix="/api/v1")
 app.include_router(bom_router, prefix="/api/v1")
 app.include_router(review_router, prefix="/api/v1")
 app.include_router(proposal_router, prefix="/api/v1")
+app.include_router(export_router, prefix="/api/v1")
