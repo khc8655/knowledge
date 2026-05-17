@@ -53,6 +53,7 @@ class PipelineBase:
             "tags": [],
             "keywords": [],
             "models": [],
+            "brand": "",
             "related_topics": [],
             "aliases": [],
             "sibling_sections": [],

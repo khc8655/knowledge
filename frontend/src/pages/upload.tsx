@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/shared/empty-state'
 import { api, type UploadedDocument } from '@/lib/api'
@@ -99,10 +98,10 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-5 max-w-3xl">
       <div>
-        <h1 className="font-heading text-h1">上传文档</h1>
-        <p className="text-muted-foreground text-body-small mt-1">
+        <h1 className="text-[18px] font-semibold">上传文档</h1>
+        <p className="text-[13px] text-muted-foreground mt-0.5">
           支持 {ACCEPTED_TYPES.join(' ')} 格式，最大 {MAX_SIZE_MB}MB
         </p>
       </div>
@@ -111,7 +110,7 @@ export default function UploadPage() {
       <div
         className={cn(
           'border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer',
-          dragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+          dragging ? 'border-foreground bg-muted' : 'border-border hover:border-muted-foreground/50'
         )}
         onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
         onDragLeave={() => setDragging(false)}
@@ -126,21 +125,21 @@ export default function UploadPage() {
           className="hidden"
           onChange={(e) => e.target.files && handleFiles(e.target.files)}
         />
-        <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-        <p className="text-body font-medium">拖拽文件到此处，或点击选择</p>
-        <p className="text-meta text-muted-foreground mt-1">可同时上传多个文件</p>
-        {uploading && <Loader2 className="h-5 w-5 animate-spin mx-auto mt-3 text-primary" />}
+        <Upload className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
+        <p className="text-[13px] font-medium">拖拽文件到此处，或点击选择</p>
+        <p className="text-[12px] text-muted-foreground mt-1">可同时上传多个文件</p>
+        {uploading && <Loader2 className="h-4 w-4 animate-spin mx-auto mt-2 text-muted-foreground" />}
       </div>
 
       {/* Messages */}
       {error && (
-        <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive text-body-small">
+        <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive text-[13px]">
           <AlertCircle className="h-4 w-4 shrink-0" />
           {error}
         </div>
       )}
       {success && (
-        <div className="flex items-center gap-2 p-3 rounded-md bg-success/10 text-success text-body-small">
+        <div className="flex items-center gap-2 p-3 rounded-md bg-success/10 text-success text-[13px]">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
           {success}
         </div>
@@ -149,40 +148,38 @@ export default function UploadPage() {
       {/* Document list */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-heading text-h2">已上传文档 ({total})</h2>
-          <Button variant="ghost" size="sm" onClick={fetchDocuments}>
-            <RefreshCw className="h-4 w-4" />
+          <h2 className="text-[14px] font-semibold">已上传文档 ({total})</h2>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={fetchDocuments}>
+            <RefreshCw className="h-3.5 w-3.5" />
           </Button>
         </div>
 
         {documents.length === 0 && !loading ? (
           <EmptyState icon={FileText} title="暂无文档" description="上传文档开始构建知识库" />
         ) : (
-          <div className="space-y-2">
+          <div className="border rounded-lg bg-white divide-y">
             {documents.map((doc) => (
-              <Card key={doc.id} className="hover:shadow-sm transition-shadow">
-                <CardContent className="p-4 flex items-center gap-4">
-                  <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-body truncate">{doc.filename}</span>
-                      <Badge variant="outline" className="text-meta">{fileTypeLabel(doc.file_type)}</Badge>
-                      {statusBadge(doc.pipeline_status)}
-                    </div>
-                    <div className="text-meta text-muted-foreground mt-0.5">
-                      {(doc.file_size / 1024).toFixed(1)} KB · {doc.cards_count} 张卡片 · {doc.created_at?.slice(0, 16)}
-                    </div>
+              <div key={doc.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors">
+                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-medium truncate">{doc.filename}</span>
+                    <Badge variant="outline">{fileTypeLabel(doc.file_type)}</Badge>
+                    {statusBadge(doc.pipeline_status)}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => handleReprocess(doc.id)} title="重新处理">
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(doc.id)} title="删除">
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                  <div className="text-[12px] text-muted-foreground mt-0.5">
+                    {(doc.file_size / 1024).toFixed(1)} KB · {doc.cards_count} 张卡片 · {doc.created_at?.slice(0, 16)}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                <div className="flex items-center gap-0.5">
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleReprocess(doc.id)} title="重新处理">
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(doc.id)} title="删除">
+                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                  </Button>
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -190,7 +187,7 @@ export default function UploadPage() {
         {total > 20 && (
           <div className="flex justify-center gap-2 mt-4">
             <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>上一页</Button>
-            <span className="text-body-small text-muted-foreground leading-8">第 {page} 页</span>
+            <span className="text-[13px] text-muted-foreground leading-8">第 {page} 页</span>
             <Button variant="outline" size="sm" disabled={page * 20 >= total} onClick={() => setPage(p => p + 1)}>下一页</Button>
           </div>
         )}

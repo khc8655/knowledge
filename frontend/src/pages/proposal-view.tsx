@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -53,73 +52,69 @@ export default function ProposalViewPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-5 max-w-3xl">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/workspace')}>
-          <ArrowLeft className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate('/workspace')}>
+          <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1">
-          <h1 className="font-heading text-h1">方案生成</h1>
-          <p className="text-muted-foreground text-body-small mt-1">{project?.customer_name || '加载中...'}</p>
+          <h1 className="text-[18px] font-semibold">方案生成</h1>
+          <p className="text-[13px] text-muted-foreground mt-0.5">{project?.customer_name || '加载中...'}</p>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-h2">生成参数</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-body-small font-medium">方案标题</label>
-            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="输入方案标题" className="mt-1" />
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={handleGenerate} disabled={generating || !title.trim()}>
-              {generating ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <FileText className="h-4 w-4 mr-1" />}
-              生成方案
+      <div className="border rounded-lg bg-white p-4 space-y-3">
+        <div>
+          <label className="text-[12px] font-medium text-muted-foreground">方案标题</label>
+          <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="输入方案标题" className="mt-1" />
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" onClick={handleGenerate} disabled={generating || !title.trim()}>
+            {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+            生成方案
+          </Button>
+          {result && (
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="h-3.5 w-3.5" />
+              导出
             </Button>
-            {result && (
-              <Button variant="outline" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-1" /> 导出
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          )}
+        </div>
+      </div>
 
       {result && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-h2">生成结果</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="border rounded-lg bg-white">
+          <div className="px-4 py-3 border-b">
+            <h2 className="text-[14px] font-semibold">生成结果</h2>
+          </div>
+          <div className="p-4 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-meta text-muted-foreground">输出 ID</label>
-                <p className="text-body-small font-mono">{String(result.output_id || '')}</p>
+                <label className="text-[12px] text-muted-foreground">输出 ID</label>
+                <p className="text-[13px] font-mono">{String(result.output_id || '')}</p>
               </div>
               <div>
-                <label className="text-meta text-muted-foreground">章节数</label>
-                <p className="text-body-small">{Array.isArray(result.chapters) ? result.chapters.length : '—'}</p>
+                <label className="text-[12px] text-muted-foreground">章节数</label>
+                <p className="text-[13px]">{Array.isArray(result.chapters) ? result.chapters.length : '—'}</p>
               </div>
             </div>
             {result.content_md ? (
-              <div className="rounded-md bg-surface-container p-4 font-mono text-body-small whitespace-pre-wrap max-h-[500px] overflow-y-auto">
+              <div className="rounded-md bg-muted p-4 font-mono text-[13px] whitespace-pre-wrap max-h-[500px] overflow-y-auto">
                 {String(result.content_md)}
               </div>
             ) : null}
             {Array.isArray(result.risk_summary) && result.risk_summary.length > 0 && (
-              <div className="mt-4">
-                <h3 className="text-body-small font-medium mb-2">风险提示</h3>
-                <div className="space-y-1">
+              <div>
+                <h3 className="text-[12px] font-medium text-muted-foreground mb-2">风险提示</h3>
+                <div className="flex flex-wrap gap-1.5">
                   {result.risk_summary.map((r: string, i: number) => (
-                    <Badge key={i} variant="warning" className="mr-2">{r}</Badge>
+                    <Badge key={i} variant="warning">{r}</Badge>
                   ))}
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   )

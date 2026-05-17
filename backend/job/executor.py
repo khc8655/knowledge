@@ -1,3 +1,4 @@
+import os
 import traceback
 from typing import Dict, Callable
 
@@ -44,6 +45,7 @@ def register_default_handlers(executor, data_dir: str):
     from pipeline.markdown import MarkdownPipeline
     from pipeline.txt import TxtPipeline
     from pipeline.ppt import PptPipeline
+    from pipeline.excel import ExcelPipeline
     from card.store import CardStore
     from db.models import get_db
 
@@ -74,6 +76,7 @@ def register_default_handlers(executor, data_dir: str):
     executor.register("pipeline_md", lambda j: handle_pipeline(j, MarkdownPipeline))
     executor.register("pipeline_txt", lambda j: handle_pipeline(j, TxtPipeline))
     executor.register("pipeline_ppt", lambda j: handle_pipeline(j, PptPipeline))
+    executor.register("pipeline_excel", lambda j: handle_pipeline(j, ExcelPipeline))
 
     def handle_pipeline_report(job):
         from pipeline.report import ReportPipeline
@@ -96,9 +99,36 @@ def register_default_handlers(executor, data_dir: str):
 
     executor.register("annotate", handle_annotate)
 
-    def handle_index(job):
-        pass  # Placeholder - index building happens in wiki_test
+    def handle_index_fts5(job):
+        from index.fts5 import FTS5Index
+        cards_dir = os.path.join(data_dir, "cards", "sections")
+        fts5 = FTS5Index()
+        count = fts5.build(cards_dir)
+        print(f"[Index] FTS5 built: {count} cards")
 
-    executor.register("index_bm25", handle_index)
-    executor.register("index_vector", handle_index)
-    executor.register("index_fts5", handle_index)
+    def handle_index_bm25(job):
+        from index.bm25 import BM25Index
+        cards_dir = os.path.join(data_dir, "cards", "sections")
+        index_dir = os.path.join(data_dir, "indexes")
+        bm25 = BM25Index()
+        count = bm25.build(cards_dir, persist_path=os.path.join(index_dir, "bm25.pkl"))
+        print(f"[Index] BM25 built: {count} cards")
+
+    def handle_index_vector(job):
+        from index.vector import VectorIndex
+        from config import AppConfig
+        cfg = AppConfig()
+        cards_dir = os.path.join(data_dir, "cards", "sections")
+        index_dir = os.path.join(data_dir, "indexes")
+        vector = VectorIndex()
+        count = vector.build(
+            cards_dir,
+            persist_dir=os.path.join(index_dir, "vector"),
+            api_key=cfg.get("llm_api_key"),
+            model=cfg.get("embedding_model", "Pro/BAAI/bge-m3"),
+        )
+        print(f"[Index] Vector built: {count} cards")
+
+    executor.register("index_fts5", handle_index_fts5)
+    executor.register("index_bm25", handle_index_bm25)
+    executor.register("index_vector", handle_index_vector)

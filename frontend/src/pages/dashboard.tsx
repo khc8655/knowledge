@@ -1,7 +1,5 @@
 import { useEffect } from 'react'
 import { useAppStore } from '@/stores/app'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { StatusBadge } from '@/components/shared/status-badge'
 import { useNavigate } from 'react-router-dom'
 import { Search, Layers, FileText, Activity } from 'lucide-react'
 
@@ -15,70 +13,60 @@ export default function DashboardPage() {
 
   const checks = health?.checks || {}
 
+  const stats = [
+    {
+      label: '卡片总数',
+      value: (checks as Record<string, unknown>).cards_count as string ?? '—',
+      icon: Layers,
+      to: '/cards',
+    },
+    {
+      label: '查询',
+      value: '—',
+      icon: Search,
+      to: '/search',
+      sub: '点击开始查询',
+    },
+    {
+      label: '待处理任务',
+      value: String(((checks as Record<string, unknown>).jobs_pending as number ?? 0) + ((checks as Record<string, unknown>).jobs_running as number ?? 0)),
+      icon: Activity,
+      sub: `失败: ${(checks as Record<string, unknown>).jobs_failed as number ?? 0}`,
+    },
+    {
+      label: '证据包',
+      value: (checks as Record<string, unknown>).evidence_count as string ?? '—',
+      icon: FileText,
+      sub: `检测报告: ${(checks as Record<string, unknown>).report_evidence_count as number ?? 0}`,
+    },
+  ]
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-heading text-h1">仪表盘</h1>
-          <p className="text-muted-foreground text-body-small mt-1">
-            系统状态总览
-          </p>
-        </div>
-        <StatusBadge
-          status={health?.status === 'healthy' ? 'healthy' : 'failed'}
-          label={health?.status === 'healthy' ? '系统正常' : '系统异常'}
-        />
+    <div className="space-y-5 max-w-4xl">
+      <div>
+        <h1 className="text-[18px] font-semibold">仪表盘</h1>
+        <p className="text-[13px] text-muted-foreground mt-0.5">
+          系统状态总览
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/cards')}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">卡片总数</CardTitle>
-            <Layers className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-heading font-bold">{(checks as Record<string, unknown>).cards_count as string ?? '—'}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/search')}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">查询</CardTitle>
-            <Search className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-heading font-bold">—</div>
-            <p className="text-meta text-muted-foreground">点击开始查询</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">待处理任务</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-heading font-bold">
-              {((checks as Record<string, unknown>).jobs_pending as number ?? 0) + ((checks as Record<string, unknown>).jobs_running as number ?? 0)}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className="border rounded-lg bg-white p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+            onClick={() => stat.to && navigate(stat.to)}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[12px] font-medium text-muted-foreground">{stat.label}</span>
+              <stat.icon className="h-4 w-4 text-muted-foreground" />
             </div>
-            <p className="text-meta text-muted-foreground">
-              失败: {(checks as Record<string, unknown>).jobs_failed as number ?? 0}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">证据包</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-heading font-bold">{(checks as Record<string, unknown>).evidence_count as string ?? '—'}</div>
-            <p className="text-meta text-muted-foreground">
-              检测报告: {(checks as Record<string, unknown>).report_evidence_count as number ?? 0}
-            </p>
-          </CardContent>
-        </Card>
+            <div className="text-[20px] font-semibold">{stat.value}</div>
+            {stat.sub && (
+              <p className="text-[12px] text-muted-foreground mt-0.5">{stat.sub}</p>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   )

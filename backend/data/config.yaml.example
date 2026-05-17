@@ -1,0 +1,48 @@
+# Knowledge Base Platform Configuration
+# Copy this file to config.yaml and fill in your API keys
+
+# Global LLM settings (used as fallback)
+llm_api_key: YOUR_API_KEY_HERE
+llm_base_url: https://api.siliconflow.cn/v1
+llm_model: Qwen/Qwen2.5-7B-Instruct
+
+# Embedding model
+embedding_model: Pro/BAAI/bge-m3
+reranker_model: BAAI/bge-reranker-v2-m3
+
+# Processing limits
+max_section_chars: 1200
+max_file_size_mb: 50
+max_files_per_upload: 20
+max_cards_per_response: 5
+chat_history_limit: 10
+
+# Cache settings
+cache_evict_days: 7
+cache_max_entries: 5000
+route_learning_enabled: true
+coarse_doc_detection: true
+
+# LLM profiles for different tasks
+# Each profile can override base_url, api_key, and model
+llm_profiles:
+  default:
+    base_url: https://your-llm-api-endpoint/v1
+    api_key: YOUR_API_KEY_HERE
+    model: DeepSeek-V4-Flash
+  annotation:
+    base_url: https://api.siliconflow.cn/v1
+    api_key: YOUR_API_KEY_HERE
+    model: Qwen/Qwen2.5-7B-Instruct
+  generation:
+    base_url: https://your-llm-api-endpoint/v1
+    api_key: YOUR_API_KEY_HERE
+    model: DeepSeek-V4-Flash
+  reply:
+    base_url: https://your-llm-api-endpoint/v1
+    api_key: YOUR_API_KEY_HERE
+    model: DeepSeek-V4-Flash
+  vision:
+    base_url: https://api.siliconflow.cn/v1
+    api_key: YOUR_API_KEY_HERE
+    model: Qwen/Qwen3-VL-8B-Instruct

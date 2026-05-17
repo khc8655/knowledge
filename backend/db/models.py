@@ -243,4 +243,36 @@ def init_db(conn):
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_card ON evidence_packs(source_card_id)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_type ON evidence_packs(evidence_type)")
 
+    # v9.0: Chat sessions and messages
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS chat_sessions (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL DEFAULT '新对话',
+        mode TEXT NOT NULL DEFAULT 'auto' CHECK(mode IN ('auto','search','proposal','tender','bom','reply')),
+        status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','archived','deleted')),
+        metadata TEXT NOT NULL DEFAULT '{}',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS chat_messages (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL,
+        role TEXT NOT NULL CHECK(role IN ('user','assistant','system')),
+        content TEXT NOT NULL DEFAULT '',
+        intent TEXT,
+        cards_json TEXT,
+        thinking_text TEXT,
+        metadata TEXT NOT NULL DEFAULT '{}',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY(session_id) REFERENCES chat_sessions(id)
+    )
+    """)
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_cs_status ON chat_sessions(status)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_cs_updated ON chat_sessions(updated_at DESC)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_cm_session ON chat_messages(session_id, created_at)")
+
     conn.commit()

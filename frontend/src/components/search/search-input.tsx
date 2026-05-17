@@ -9,7 +9,7 @@ interface SearchInputProps {
   placeholder?: string
 }
 
-export function SearchInput({ onSearch, loading, placeholder = '输入问题，例如：AE800 的价格是多少' }: SearchInputProps) {
+export function SearchInput({ onSearch, loading, placeholder = '输入问题搜索知识库...' }: SearchInputProps) {
   const [value, setValue] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -19,14 +19,17 @@ export function SearchInput({ onSearch, loading, placeholder = '输入问题，�
 
   return (
     <form onSubmit={handleSubmit} className="flex gap-2">
-      <Input
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
-        className="h-12 text-base flex-1"
-      />
-      <Button type="submit" size="lg" disabled={loading || !value.trim()}>
-        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5" />}
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
+          className="h-10 pl-9 text-[14px] bg-white"
+        />
+      </div>
+      <Button type="submit" size="default" disabled={loading || !value.trim()} className="h-10 px-5">
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
         查询
       </Button>
     </form>

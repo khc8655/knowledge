@@ -22,6 +22,7 @@ ANNOTATION_PROMPT_USER = """请分析以下文档片段，输出 JSON 格式的�
   "scenario_tags": [提取 0-5 个应用场景],
   "card_type": "capability/parameter/price/scenario/architecture/update",
   "summary": "一句话描述本节内容（50字以内）",
+  "brand": "品牌名称（如小鱼易连/华为/ZTE/中兴/DJI大疆等，无法判断则留空）",
   "models": [提取产品型号如 AE800/PE8000],
   "keywords": [提取 0-5 个检索关键词],
   "negative_concepts": [与本节无关但易混淆的概念],
@@ -85,6 +86,7 @@ def _fallback_annotation(card: Dict, content_hash: str) -> Dict:
         "scenario_tags": [],
         "card_type": "capability",
         "summary": card.get("title", ""),
+        "brand": "",
         "models": [],
         "keywords": [],
         "negative_concepts": [],
@@ -102,6 +104,7 @@ def _validate_annotation(annotation: Dict, content_hash: str) -> Dict:
     if result["card_type"] not in VALID_CARD_TYPES:
         result["card_type"] = "capability"
     result["summary"] = str(annotation.get("summary", ""))[:50]
+    result["brand"] = str(annotation.get("brand", ""))[:30]
     result["models"] = annotation.get("models", [])
     result["keywords"] = annotation.get("keywords", [])[:5]
     result["negative_concepts"] = annotation.get("negative_concepts", [])
@@ -114,24 +117,15 @@ def _validate_annotation(annotation: Dict, content_hash: str) -> Dict:
 
 def _default_llm_call(system: str, user: str) -> str:
     import requests
-    cfg_path = os.path.join(os.environ.get("KB_DATA_DIR", "./data"), "config.yaml")
-    api_key = os.environ.get("LLM_API_KEY", "")
-    base_url = os.environ.get("LLM_BASE_URL", "https://api.siliconflow.cn/v1")
-    model = os.environ.get("LLM_MODEL", "Qwen/Qwen2.5-7B-Instruct")
+    from config import AppConfig
 
-    if os.path.exists(cfg_path):
-        import yaml
-        with open(cfg_path) as f:
-            cfg = yaml.safe_load(f) or {}
-        api_key = cfg.get("llm_api_key", api_key)
-        base_url = cfg.get("llm_base_url", base_url)
-        model = cfg.get("llm_model", model)
+    profile = AppConfig().get_llm_profile("annotation")
 
     resp = requests.post(
-        f"{base_url}/chat/completions",
-        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        f"{profile['base_url']}/chat/completions",
+        headers={"Authorization": f"Bearer {profile['api_key']}", "Content-Type": "application/json"},
         json={
-            "model": model,
+            "model": profile["model"],
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},

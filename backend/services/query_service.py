@@ -1,7 +1,10 @@
+"""
+Query service: normalize query, check cache, search indexes, learn routes.
+Replaces wiki_test subprocess with local index/search module.
+"""
 import hashlib
 import json
 import os
-import subprocess
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 
@@ -49,24 +52,12 @@ def search(query: str, limit: int = 10) -> Dict[str, Any]:
     finally:
         conn.close()
 
-    wiki_dir = os.environ.get("WIKI_DIR", "/home/jjb/wiki")
-    script = os.path.join(wiki_dir, "query_unified.py")
-
+    # Use local index search
     try:
-        result = subprocess.run(
-            ["python3", script, q, "--json", "--limit", str(limit)],
-            capture_output=True,
-            text=True,
-            timeout=15,
-            cwd=wiki_dir,
-        )
-
-        if result.returncode == 0 and result.stdout.strip():
-            data = json.loads(result.stdout)
-        else:
-            data = {"results": [], "total": 0}
-
-    except (subprocess.TimeoutExpired, json.JSONDecodeError, FileNotFoundError):
+        from index.search import unified_search
+        data = unified_search(q, limit=limit)
+    except Exception as e:
+        print(f"[QueryService] Search error: {e}")
         data = {"results": [], "total": 0}
 
     data["route_source"] = route_source
