@@ -117,10 +117,17 @@ export interface Job {
   finished_at: string | null
 }
 
+export interface LLMProfile {
+  base_url?: string
+  api_key?: string
+  model?: string
+}
+
 export interface SystemConfig {
   llm_api_key?: string
   llm_base_url?: string
   llm_model?: string
+  llm_profiles?: Record<string, LLMProfile>
   embedding_model?: string
   max_section_chars?: number
   max_file_size_mb?: number
@@ -174,10 +181,10 @@ export const api = {
       body: JSON.stringify({ query: q, ...opts }),
     }),
 
-  feedback: (card_id: string, rating: 'positive' | 'negative', reason?: string) =>
+  feedback: (card_id: string, feedback: 'positive' | 'negative', query_text?: string) =>
     request('/feedback', {
       method: 'POST',
-      body: JSON.stringify({ card_id, rating, reason }),
+      body: JSON.stringify({ card_id, feedback, query_text }),
     }),
 
   // Upload

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -57,66 +56,57 @@ export default function OutputReviewPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-5 max-w-3xl">
       <div>
-        <h1 className="font-heading text-h1">输出审核</h1>
-        <p className="text-muted-foreground text-body-small mt-1">审核和导出方案、招标等输出</p>
+        <h1 className="text-[18px] font-semibold">输出审核</h1>
+        <p className="text-[13px] text-muted-foreground mt-0.5">审核和导出方案、招标等输出</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-h2">审核操作</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-body-small font-medium">输出 ID</label>
-            <Input value={outputId} onChange={e => setOutputId(e.target.value)} placeholder="输入输出 ID" className="mt-1" />
-          </div>
+      <div className="border rounded-lg bg-white p-4 space-y-3">
+        <div>
+          <label className="text-[12px] font-medium text-muted-foreground">输出 ID</label>
+          <Input value={outputId} onChange={e => setOutputId(e.target.value)} placeholder="输入输出 ID" className="mt-1" />
+        </div>
 
-          {/* Status flow visualization */}
-          <div className="flex items-center gap-1">
-            {STATUS_FLOW.map((s, i) => (
-              <div key={s} className="flex items-center gap-1">
-                <Badge variant={currentStatus === s ? STATUS_LABELS[s].variant : 'outline'}>
-                  {STATUS_LABELS[s].label}
-                </Badge>
-                {i < STATUS_FLOW.length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground" />}
-              </div>
-            ))}
-          </div>
-
-          <div className="flex gap-2">
-            {nextAction && (
-              <Button onClick={() => handleReview(actionMap[nextAction])} disabled={!outputId.trim()}>
-                <CheckCircle2 className="h-4 w-4 mr-1" />
-                推进到: {STATUS_LABELS[nextAction]?.label}
-              </Button>
-            )}
-            <Button variant="outline" onClick={handleExport} disabled={exporting || !outputId.trim()}>
-              {exporting ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Download className="h-4 w-4 mr-1" />}
-              导出
-            </Button>
-          </div>
-
-          {error && (
-            <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive text-body-small">
-              <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+        {/* Status flow */}
+        <div className="flex items-center gap-1.5">
+          {STATUS_FLOW.map((s, i) => (
+            <div key={s} className="flex items-center gap-1.5">
+              <Badge variant={currentStatus === s ? STATUS_LABELS[s].variant : 'outline'}>
+                {STATUS_LABELS[s].label}
+              </Badge>
+              {i < STATUS_FLOW.length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground" />}
             </div>
+          ))}
+        </div>
+
+        <div className="flex gap-2">
+          {nextAction && (
+            <Button size="sm" onClick={() => handleReview(actionMap[nextAction])} disabled={!outputId.trim()}>
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              推进到: {STATUS_LABELS[nextAction]?.label}
+            </Button>
           )}
-        </CardContent>
-      </Card>
+          <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting || !outputId.trim()}>
+            {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+            导出
+          </Button>
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive text-[13px]">
+            <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+          </div>
+        )}
+      </div>
 
       {result && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-h2">操作结果</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md bg-surface-container p-4 font-mono text-body-small whitespace-pre-wrap">
-              {JSON.stringify(result, null, 2)}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="border rounded-lg bg-white p-4">
+          <h2 className="text-[14px] font-semibold mb-3">操作结果</h2>
+          <div className="rounded-md bg-muted p-4 font-mono text-[13px] whitespace-pre-wrap">
+            {JSON.stringify(result, null, 2)}
+          </div>
+        </div>
       )}
     </div>
   )

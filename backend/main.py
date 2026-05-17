@@ -2,6 +2,8 @@
 知识库平台 - FastAPI 后端
 """
 import os
+import threading
+import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,21 +11,57 @@ from db.models import init_db, get_db
 
 DATA_DIR = os.environ.get("KB_DATA_DIR", "./data")
 
+_stop_event = threading.Event()
+
+
+def _job_runner_loop():
+    """Background thread: continuously fetch and execute pending jobs."""
+    from job.scheduler import JobScheduler
+    from job.executor import JobExecutor, register_default_handlers
+
+    conn = get_db()
+    init_db(conn)
+    conn.close()
+
+    while not _stop_event.is_set():
+        conn = get_db()
+        try:
+            scheduler = JobScheduler(conn)
+            executor = JobExecutor(scheduler)
+            register_default_handlers(executor, DATA_DIR)
+            executed = executor.execute_one()
+        except Exception as e:
+            print(f"[JobRunner] Error: {e}")
+            executed = False
+        finally:
+            conn.close()
+
+        if not executed:
+            _stop_event.wait(timeout=2.0)
+        else:
+            _stop_event.wait(timeout=0.1)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: initialize database
+    # Startup: initialize database and start job runner
     os.makedirs(DATA_DIR, exist_ok=True)
     conn = get_db()
     init_db(conn)
     conn.close()
+
+    runner_thread = threading.Thread(target=_job_runner_loop, daemon=True, name="job-runner")
+    runner_thread.start()
+
     yield
-    # Shutdown: cleanup
+
+    # Shutdown: stop job runner
+    _stop_event.set()
 
 
 app = FastAPI(
     title="知识库平台",
-    version="7.5",
+    version="8.0",
     description="上传文档 → 自动入库 → 随时查询 → 结果带原文出处",
     lifespan=lifespan,
 )
@@ -60,6 +98,8 @@ from api.bom import router as bom_router
 from api.output_review import router as review_router
 from api.proposal import router as proposal_router
 from api.export import router as export_router
+from api.thumbnail import router as thumbnail_router
+from api.chat import router as chat_router
 
 app.include_router(upload_router, prefix="/api/v1")
 app.include_router(query_router, prefix="/api/v1")
@@ -77,3 +117,5 @@ app.include_router(bom_router, prefix="/api/v1")
 app.include_router(review_router, prefix="/api/v1")
 app.include_router(proposal_router, prefix="/api/v1")
 app.include_router(export_router, prefix="/api/v1")
+app.include_router(thumbnail_router, prefix="/api/v1")
+app.include_router(chat_router, prefix="/api/v1")

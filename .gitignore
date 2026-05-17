@@ -9,3 +9,19 @@ dist/
 .vite/
 *.log
 .DS_Store
+*.pkl
+
+# Claude Code local settings
+.claude/
+
+# Sensitive config (use config.yaml.example as template)
+backend/data/config.yaml
+
+# Generated data / user uploads
+backend/data/cards/
+backend/data/indexes/
+backend/data/uploads/
+backend/data/raw/
+
+# Example/test documents (may contain sensitive business data)
+example/

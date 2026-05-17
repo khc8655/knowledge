@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -48,48 +47,47 @@ export default function TemplatesPage() {
   const typeLabels: Record<string, string> = { proposal: '方案', tender: '招标', bom: 'BOM', reply: '答复' }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-5 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-h1">模板管理</h1>
-          <p className="text-muted-foreground text-body-small mt-1">管理方案、招标、BOM 等模板</p>
+          <h1 className="text-[18px] font-semibold">模板管理</h1>
+          <p className="text-[13px] text-muted-foreground mt-0.5">管理方案、招标、BOM 等模板</p>
         </div>
-        <Button onClick={() => setShowCreate(!showCreate)}>
-          <Plus className="h-4 w-4 mr-1" /> 新建模板
+        <Button onClick={() => setShowCreate(!showCreate)} size="sm">
+          <Plus className="h-3.5 w-3.5" />
+          新建模板
         </Button>
       </div>
 
       {showCreate && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <label className="text-body-small font-medium">类型</label>
-                <select className="mt-1 w-full h-9 rounded-md border border-input bg-transparent px-3 text-sm" value={newType} onChange={e => setNewType(e.target.value)}>
-                  <option value="proposal">方案</option>
-                  <option value="tender">招标</option>
-                  <option value="bom">BOM</option>
-                  <option value="reply">答复</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-body-small font-medium">名称</label>
-                <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="模板名称" className="mt-1" />
-              </div>
-              <div>
-                <label className="text-body-small font-medium">文件路径</label>
-                <Input value={newPath} onChange={e => setNewPath(e.target.value)} placeholder="/path/to/template.md" className="mt-1" />
-              </div>
+        <div className="border rounded-lg bg-white p-4 space-y-3">
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="text-[12px] font-medium text-muted-foreground">类型</label>
+              <select className="mt-1 w-full h-8 rounded-md border border-border bg-white px-3 text-[13px]" value={newType} onChange={e => setNewType(e.target.value)}>
+                <option value="proposal">方案</option>
+                <option value="tender">招标</option>
+                <option value="bom">BOM</option>
+                <option value="reply">答复</option>
+              </select>
             </div>
-            <div className="flex gap-2">
-              <Button onClick={handleCreate} disabled={!newName.trim() || !newPath.trim()}>创建</Button>
-              <Button variant="ghost" onClick={() => setShowCreate(false)}>取消</Button>
+            <div>
+              <label className="text-[12px] font-medium text-muted-foreground">名称</label>
+              <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="模板名称" className="mt-1" />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <label className="text-[12px] font-medium text-muted-foreground">文件路径</label>
+              <Input value={newPath} onChange={e => setNewPath(e.target.value)} placeholder="/path/to/template.md" className="mt-1" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleCreate} disabled={!newName.trim() || !newPath.trim()}>创建</Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowCreate(false)}>取消</Button>
+          </div>
+        </div>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         {['', 'proposal', 'tender', 'bom', 'reply'].map(t => (
           <Badge key={t} variant={typeFilter === t ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setTypeFilter(t)}>
             {t ? typeLabels[t] || t : '全部'}
@@ -100,25 +98,23 @@ export default function TemplatesPage() {
       {templates.length === 0 && !loading ? (
         <EmptyState icon={FileText} title="暂无模板" description="点击「新建模板」添加" />
       ) : (
-        <div className="space-y-2">
+        <div className="border rounded-lg bg-white divide-y">
           {templates.map(tmpl => (
-            <Card key={tmpl.id} className="hover:shadow-sm transition-shadow">
-              <CardContent className="p-4 flex items-center gap-4">
-                <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-body truncate">{tmpl.name}</span>
-                    <Badge variant="outline" className="text-meta">{typeLabels[tmpl.template_type] || tmpl.template_type}</Badge>
-                    {tmpl.industry && <Badge variant="secondary" className="text-meta">{tmpl.industry}</Badge>}
-                    {!tmpl.enabled && <Badge variant="warning">已禁用</Badge>}
-                  </div>
-                  <p className="text-meta text-muted-foreground mt-0.5 truncate">{tmpl.file_path}</p>
+            <div key={tmpl.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors">
+              <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[13px] font-medium truncate">{tmpl.name}</span>
+                  <Badge variant="outline">{typeLabels[tmpl.template_type] || tmpl.template_type}</Badge>
+                  {tmpl.industry && <Badge variant="secondary">{tmpl.industry}</Badge>}
+                  {!tmpl.enabled && <Badge variant="warning">已禁用</Badge>}
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => handleDelete(tmpl.id)} title="删除">
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-              </CardContent>
-            </Card>
+                <p className="text-[12px] text-muted-foreground mt-0.5 truncate">{tmpl.file_path}</p>
+              </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(tmpl.id)} title="删除">
+                <Trash2 className="h-3.5 w-3.5 text-destructive" />
+              </Button>
+            </div>
           ))}
         </div>
       )}

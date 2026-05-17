@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { api, type TenderRequirement } from '@/lib/api'
@@ -45,84 +44,74 @@ export default function TenderViewPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-5 max-w-3xl">
       <div>
-        <h1 className="font-heading text-h1">招标匹配</h1>
-        <p className="text-muted-foreground text-body-small mt-1">分析招标文件要求，匹配产品和证据</p>
+        <h1 className="text-[18px] font-semibold">招标匹配</h1>
+        <p className="text-[13px] text-muted-foreground mt-0.5">分析招标文件要求，匹配产品和证据</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-h2">招标文件</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <div className="border rounded-lg bg-white p-4 space-y-3">
+        <div>
+          <label className="text-[12px] font-medium text-muted-foreground">招标文件内容</label>
           <textarea
-            className="w-full h-40 rounded-md border border-input bg-transparent p-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="mt-1 w-full h-36 rounded-md border border-border bg-white p-3 text-[13px] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
             value={tenderText}
             onChange={e => setTenderText(e.target.value)}
             placeholder="粘贴招标文件内容..."
           />
-          <div className="flex gap-2">
-            <Button onClick={handleAnalyze} disabled={analyzing || !tenderText.trim()}>
-              {analyzing ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <FileSearch className="h-4 w-4 mr-1" />}
-              分析要求
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" onClick={handleAnalyze} disabled={analyzing || !tenderText.trim()}>
+            {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSearch className="h-3.5 w-3.5" />}
+            分析要求
+          </Button>
+          {requirements.length > 0 && (
+            <Button variant="outline" size="sm" onClick={handleMatch} disabled={matching}>
+              {matching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+              匹配产品
             </Button>
-            {requirements.length > 0 && (
-              <Button variant="outline" onClick={handleMatch} disabled={matching}>
-                {matching ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <CheckCircle2 className="h-4 w-4 mr-1" />}
-                匹配产品
-              </Button>
-            )}
-          </div>
-          {error && (
-            <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive text-body-small">
-              <AlertCircle className="h-4 w-4 shrink-0" /> {error}
-            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+        {error && (
+          <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive text-[13px]">
+            <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+          </div>
+        )}
+      </div>
 
       {requirements.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-h2">分析结果 ({requirements.length} 条要求)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {requirements.map((req) => (
-                <div key={req.id} className="border rounded-md p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant={req.requirement_type === 'mandatory' ? 'destructive' : req.requirement_type === 'preference' ? 'warning' : 'secondary'}>
-                      {typeLabel(req.requirement_type)}
-                    </Badge>
-                    {req.target_models?.length > 0 && req.target_models.map(m => (
-                      <Badge key={m} variant="outline" className="text-meta">{m}</Badge>
-                    ))}
-                  </div>
-                  <p className="text-body-small">{req.raw_text}</p>
-                  {req.required_capabilities?.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {req.required_capabilities.map(c => <Badge key={c} variant="secondary" className="text-meta">{c}</Badge>)}
-                    </div>
-                  )}
+        <div className="border rounded-lg bg-white p-4">
+          <h2 className="text-[14px] font-semibold mb-3">分析结果 ({requirements.length} 条要求)</h2>
+          <div className="space-y-2">
+            {requirements.map((req) => (
+              <div key={req.id} className="border rounded-md p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Badge variant={req.requirement_type === 'mandatory' ? 'destructive' : req.requirement_type === 'preference' ? 'warning' : 'secondary'}>
+                    {typeLabel(req.requirement_type)}
+                  </Badge>
+                  {req.target_models?.length > 0 && req.target_models.map(m => (
+                    <Badge key={m} variant="outline">{m}</Badge>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                <p className="text-[13px]">{req.raw_text}</p>
+                {req.required_capabilities?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {req.required_capabilities.map(c => <Badge key={c} variant="secondary">{c}</Badge>)}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {matchResults && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-h2">匹配结果</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md bg-surface-container p-4 font-mono text-body-small whitespace-pre-wrap max-h-[400px] overflow-y-auto">
-              {JSON.stringify(matchResults, null, 2)}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="border rounded-lg bg-white p-4">
+          <h2 className="text-[14px] font-semibold mb-3">匹配结果</h2>
+          <div className="rounded-md bg-muted p-4 font-mono text-[13px] whitespace-pre-wrap max-h-[400px] overflow-y-auto">
+            {JSON.stringify(matchResults, null, 2)}
+          </div>
+        </div>
       )}
     </div>
   )
