@@ -10,6 +10,9 @@ dist/
 *.log
 .DS_Store
 *.pkl
+*.egg-info/
+.venv*/
+venv/
 
 # Claude Code local settings
 .claude/
