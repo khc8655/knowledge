@@ -30,8 +30,8 @@ export function SessionSidebar({ collapsed }: Props) {
 
   if (collapsed) {
     return (
-      <div className="w-[56px] border-r bg-muted/30 flex flex-col items-center py-3 gap-2">
-        <Button variant="ghost" size="icon" onClick={handleNew} title="新对话">
+      <div className="w-[56px] border-r bg-muted/20 flex flex-col items-center py-3 gap-2">
+        <Button variant="ghost" size="icon" onClick={handleNew} title="新对话" className="rounded-lg">
           <Plus className="h-4 w-4" />
         </Button>
         <div className="flex-1 overflow-y-auto w-full flex flex-col items-center gap-1">
@@ -40,7 +40,7 @@ export function SessionSidebar({ collapsed }: Props) {
               key={s.id}
               variant={s.id === currentSessionId ? 'secondary' : 'ghost'}
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 rounded-lg"
               onClick={() => handleSelect(s.id)}
               title={s.title}
             >
@@ -53,16 +53,16 @@ export function SessionSidebar({ collapsed }: Props) {
   }
 
   return (
-    <div className="w-[260px] border-r bg-muted/30 flex flex-col">
+    <div className="w-[260px] border-r bg-muted/20 flex flex-col">
       {/* Header */}
       <div className="p-3 border-b">
-        <Button variant="outline" className="w-full justify-start gap-2 text-sm" onClick={handleNew}>
+        <Button variant="outline" className="w-full justify-start gap-2 text-sm rounded-lg border-dashed hover:border-solid hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-colors duration-200" onClick={handleNew}>
           <Plus className="h-4 w-4" /> 新对话
         </Button>
       </div>
 
       {/* Session list */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-0.5">
+      <div className="flex-1 overflow-y-auto p-2 space-y-1">
         {loading && sessions.length === 0 && (
           <div className="text-xs text-muted-foreground p-2">加载中...</div>
         )}
@@ -70,23 +70,31 @@ export function SessionSidebar({ collapsed }: Props) {
           <div
             key={s.id}
             className={cn(
-              'group flex items-center gap-2 px-2.5 py-2 rounded-md cursor-pointer text-sm transition-colors',
-              s.id === currentSessionId ? 'bg-background shadow-sm' : 'hover:bg-muted'
+              'group flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer text-sm transition-all duration-200',
+              s.id === currentSessionId
+                ? 'bg-white shadow-sm border border-border/50'
+                : 'hover:bg-white/60 hover:shadow-sm'
             )}
             onClick={() => handleSelect(s.id)}
           >
-            <MessageSquare className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            <span className="flex-1 truncate">{s.title}</span>
+            <MessageSquare className={cn(
+              "h-3.5 w-3.5 shrink-0 transition-colors",
+              s.id === currentSessionId ? 'text-primary' : 'text-muted-foreground'
+            )} />
+            <span className={cn(
+              "flex-1 truncate",
+              s.id === currentSessionId ? 'font-medium text-foreground' : 'text-muted-foreground'
+            )}>{s.title}</span>
             <div className="opacity-0 group-hover:opacity-100 flex gap-0.5">
               <Button
-                variant="ghost" size="icon" className="h-6 w-6"
+                variant="ghost" size="icon" className="h-6 w-6 rounded-md"
                 onClick={(e) => { e.stopPropagation(); archiveSession(s.id) }}
                 title="归档"
               >
                 <Archive className="h-3 w-3" />
               </Button>
               <Button
-                variant="ghost" size="icon" className="h-6 w-6 text-destructive"
+                variant="ghost" size="icon" className="h-6 w-6 rounded-md text-destructive"
                 onClick={(e) => { e.stopPropagation(); deleteSession(s.id) }}
                 title="删除"
               >
@@ -98,8 +106,8 @@ export function SessionSidebar({ collapsed }: Props) {
       </div>
 
       {/* Bottom links */}
-      <div className="border-t p-2 space-y-0.5">
-        <Button variant="ghost" className="w-full justify-start gap-2 text-sm" onClick={() => navigate('/settings')}>
+      <div className="border-t p-2 space-y-1">
+        <Button variant="ghost" className="w-full justify-start gap-2 text-sm rounded-lg" onClick={() => navigate('/settings')}>
           <Settings className="h-4 w-4" /> 设置
         </Button>
       </div>

@@ -38,19 +38,19 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'fixed left-0 top-[48px] bottom-0 z-40 flex flex-col border-r bg-white transition-[width] duration-200',
+        'fixed left-0 top-[52px] bottom-0 z-40 flex flex-col border-r bg-white transition-[width] duration-200',
         collapsed ? 'w-[56px]' : 'w-[220px]'
       )}
     >
-      <nav className="flex-1 overflow-y-auto py-3 px-2">
+      <nav className="flex-1 overflow-y-auto py-4 px-2">
         {navSections.map((section, si) => (
-          <div key={si} className={cn(si > 0 && 'mt-4')}>
+          <div key={si} className={cn(si > 0 && 'mt-5')}>
             {section.label && !collapsed && (
-              <div className="px-3 mb-1 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+              <div className="px-3 mb-2 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                 {section.label}
               </div>
             )}
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-1">
               {section.items.map(({ to, icon: Icon, label }) => (
                 <NavLink
                   key={to}
@@ -58,9 +58,9 @@ export function Sidebar() {
                   end={to === '/'}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-2.5 rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors',
+                      'flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-200',
                       isActive
-                        ? 'bg-foreground text-background'
+                        ? 'bg-primary/10 text-primary'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     )
                   }
@@ -75,9 +75,9 @@ export function Sidebar() {
       </nav>
 
       {!collapsed && (
-        <div className="border-t px-3 py-2">
+        <div className="border-t px-3 py-3">
           <div className="text-[11px] text-muted-foreground">知识库平台</div>
-          <div className="text-[11px] text-muted-foreground">v1.0</div>
+          <div className="text-[11px] text-muted-foreground/60">v1.0</div>
         </div>
       )}
     </aside>

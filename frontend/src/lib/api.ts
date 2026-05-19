@@ -134,6 +134,8 @@ export interface SystemConfig {
   route_learning_enabled?: boolean
   cache_evict_days?: number
   cache_max_entries?: number
+  max_cards_per_response?: number
+  chat_history_limit?: number
 }
 
 export interface Project {

@@ -31,7 +31,7 @@ const sourceLabels: Record<string, string> = {
   txt: '文本',
 }
 
-function InlineCard({ card, queryText }: { card: ChatCard; queryText?: string }) {
+function InlineCard({ card }: { card: ChatCard }) {
   const [expanded, setExpanded] = useState(false)
   const [feedback, setFeedback] = useState<'positive' | 'negative' | null>(null)
   const Icon = sourceIcons[card.source_type] || FileText
@@ -46,8 +46,8 @@ function InlineCard({ card, queryText }: { card: ChatCard; queryText?: string })
 
   return (
     <>
-      <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={() => setExpanded(true)}>
-        <CardContent className="p-3 flex gap-3">
+      <Card className="hover:shadow-md transition-all duration-200 cursor-pointer group border-border/50 rounded-xl" onClick={() => setExpanded(true)}>
+        <CardContent className="p-3.5 flex gap-3">
           {/* Left: meta */}
           <div className="flex flex-col items-center gap-1 shrink-0 w-14">
             <Icon className="h-4 w-4 text-muted-foreground" />
@@ -162,11 +162,11 @@ function ThinkingIndicator({ text }: { text: string }) {
   )
 }
 
-function MessageCards({ cards, queryText }: { cards: ChatCard[]; queryText?: string }) {
+function MessageCards({ cards }: { cards: ChatCard[] }) {
   return (
     <div className="space-y-2">
       {cards.map((card) => (
-        <InlineCard key={card.card_id} card={card} queryText={queryText} />
+        <InlineCard key={card.card_id} card={card} />
       ))}
     </div>
   )
@@ -183,22 +183,27 @@ export function MessageList({ messages, isStreaming, streamingThinking, streamin
     <div className="flex-1 overflow-y-auto px-4 py-6">
       <div className="max-w-4xl mx-auto space-y-6">
         {messages.length === 0 && !isStreaming && (
-          <div className="text-center py-20">
-            <h2 className="text-lg font-semibold text-muted-foreground">知识库助手</h2>
-            <p className="text-sm text-muted-foreground mt-1">输入问题查询知识库，或让我帮你生成方案、BOM清单等</p>
+          <div className="text-center py-24">
+            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20">
+              <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-foreground mb-2">知识库助手</h2>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">输入问题查询知识库，或让我帮你生成方案、BOM清单、客户回复等</p>
           </div>
         )}
 
         {messages.map((msg) => (
           <div key={msg.id} className={msg.role === 'user' ? 'flex justify-end' : ''}>
             {msg.role === 'user' ? (
-              <div className="bg-primary text-primary-foreground rounded-2xl px-4 py-2.5 max-w-[80%] text-sm">
+              <div className="bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5 max-w-[80%] text-sm shadow-sm">
                 {msg.content}
               </div>
             ) : (
               <div className="space-y-3 w-full">
                 {msg.cards && msg.cards.length > 0 && (
-                  <MessageCards cards={msg.cards} queryText={msg.content} />
+                  <MessageCards cards={msg.cards} />
                 )}
                 {msg.intent && msg.intent !== 'general' && (
                   <Badge variant="outline" className="text-xs">{msg.intent}</Badge>

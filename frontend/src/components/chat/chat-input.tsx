@@ -35,8 +35,8 @@ export function ChatInput({ onSend, onStop, disabled, isStreaming }: Props) {
   }
 
   return (
-    <div className="border-t bg-background p-4">
-      <div className="max-w-3xl mx-auto flex gap-2 items-end">
+    <div className="border-t bg-white/80 backdrop-blur-sm p-4">
+      <div className="max-w-3xl mx-auto flex gap-3 items-end">
         <textarea
           ref={textareaRef}
           value={value}
@@ -45,14 +45,14 @@ export function ChatInput({ onSend, onStop, disabled, isStreaming }: Props) {
           placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
           disabled={disabled || isStreaming}
           rows={1}
-          className="flex-1 resize-none rounded-lg border border-input bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+          className="flex-1 resize-none rounded-xl border border-input bg-white px-4 py-3 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 disabled:opacity-50 transition-all duration-200"
         />
         {isStreaming ? (
           <Button
             onClick={onStop}
             size="icon"
             variant="outline"
-            className="shrink-0"
+            className="shrink-0 rounded-xl h-10 w-10 border-destructive/30 text-destructive hover:bg-destructive/10"
           >
             <Square className="h-4 w-4" />
           </Button>
@@ -61,7 +61,7 @@ export function ChatInput({ onSend, onStop, disabled, isStreaming }: Props) {
             onClick={handleSubmit}
             disabled={!value.trim() || disabled}
             size="icon"
-            className="shrink-0"
+            className="shrink-0 rounded-xl h-10 w-10 bg-primary hover:bg-primary/90 transition-colors duration-200"
           >
             <Send className="h-4 w-4" />
           </Button>
